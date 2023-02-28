@@ -1,0 +1,90 @@
+tilde_deadline_detector_node:
+  ros__parameters:
+    sensor_topics: [
+        # gsm8
+        # "/sensing/lidar/front_lower/self_cropped/pointcloud_ex",
+        # "/sensing/lidar/front_upper/self_cropped/pointcloud_ex",
+        # "/sensing/lidar/left_lower/self_cropped/pointcloud_ex",
+        # "/sensing/lidar/left_upper/self_cropped/pointcloud_ex",
+        # "/sensing/lidar/rear_lower/self_cropped/pointcloud_ex",
+        # "/sensing/lidar/rear_upper/self_cropped/pointcloud_ex",
+        # "/sensing/lidar/right_lower/self_cropped/pointcloud_ex",
+        # "/sensing/lidar/right_upper/self_cropped/pointcloud_ex",
+        # office map
+        # "/sensing/lidar/top/self_cropped/pointcloud_ex",
+        # "/sensing/lidar/left/self_cropped/pointcloud_ex",
+        # "/sensing/lidar/right/self_cropped/pointcloud_ex",
+        # loop
+        # "/localization/pose_twist_fusion_filter/pose_with_covariance_without_yawbias",
+        
+        # autoware_tilde
+        
+        # "sensing/lidar/concatenate_data",
+        "sensing/lidar/concatenated/pointcloud",
+        "sensing/gnss/pose_with_covariance",
+        "sensing/gnss/ublox/nav_sat_fix",
+        "sensing/imu/imu_data",
+        "sensing/imu/tamagawa/imu_raw",
+        "sensing/lidar/left/mirror_cropped/pointcloud_ex",
+        "sensing/lidar/left/outlier_filtered/pointcloud",
+        "sensing/lidar/left/pointcloud_raw_ex",
+        "sensing/lidar/left/rectified/pointcloud_ex",
+        "sensing/lidar/left/self_cropped/pointcloud_ex",
+        # "sensing/lidar/right/mirror_cropped/pointcloud_ex",
+        # "sensing/lidar/right/outlier_filtered/pointcloud",
+        # "sensing/lidar/right/pointcloud_raw_ex",
+        # "sensing/lidar/right/rectified/pointcloud_ex",
+        # "sensing/lidar/right/self_cropped/pointcloud_ex",
+        "sensing/lidar/top/mirror_cropped/pointcloud_ex",
+        "sensing/lidar/top/outlier_filtered/pointcloud",
+        "sensing/lidar/top/pointcloud_raw_ex",
+        "sensing/lidar/top/rectified/pointcloud_ex",
+        "sensing/lidar/top/self_cropped/pointcloud_ex",
+        "sensing/vehicle_velocity_converter/twist_with_covariance",
+        # "sensing/vehicle_velocity_converter_node"
+        
+      ]
+    target_topics: [
+        # "/localization/pose_twist_fusion_filter/pose_with_covariance_without_yawbias"  # loop of EKF/NDT
+        # "/localization/kinematic_state",  # output of localization
+        # "/localization/pose_twist_fusion_filter/kinematic_state"
+        # "/control/trajectory_follower/longitudinal/control_cmd",
+
+        # autoware_tilde
+        "/planning/scenario_planning/trajectory",
+        "/planning/scenario_planning/motion_velocity_smoother/closest_max_velocity",
+        "/planning/scenario_planning/lane_driving/motion_planning/obstacle_avoidance_planner/trajectory"
+        # "control/shift_decider/gear_cmd",
+        # "control/trajectory_follower/controller_node_exe",
+        # "control/trajectory_follower/control_cmd",
+        # "control/vehicle_cmd_gate/operation_mode",
+        # "control/vehicle_cmd_gate",
+
+        # "control/trajectory_follower/control_cmd"
+      ]
+    # specify deadline ms for topics in target_topics order.
+    # 0 means no deadline, and negative values are replaced by 0
+    deadline_ms: [1]
+    # skips_main_out: [
+    #     # office map
+    #     "/sensing/lidar/top/rectified/pointcloud_ex",
+    #     "/sensing/lidar/left/rectified/pointcloud_ex",
+    #     "/sensing/lidar/right/rectified/pointcloud_ex",
+    #     "/sensing/lidar/top/rectified/pointcloud",
+    #     "/sensing/lidar/left/rectified/pointcloud",
+    #     "/sensing/lidar/right/rectified/pointcloud",
+    #     "/sensing/lidar/no_ground/pointcloud",
+    #   ]
+    # skips_main_in:
+    #   [
+    #     "/sensing/lidar/top/mirror_cropped/pointcloud_ex",
+    #     "/sensing/lidar/left/mirror_cropped/pointcloud_ex",
+    #     "/sensing/lidar/right/mirror_cropped/pointcloud_ex",
+    #     "/sensing/lidar/top/mirror_cropped/pointcloud_ex",
+    #     "/sensing/lidar/left/mirror_cropped/pointcloud_ex",
+    #     "/sensing/lidar/right/mirror_cropped/pointcloud_ex",
+    #     "/sensing/lidar/concatenated/pointcloud",
+    #   ]
+    show_performance: true
+    print_report: true
+    print_pending_messages: true

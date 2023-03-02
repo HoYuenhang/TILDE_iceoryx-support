@@ -1,3 +1,3 @@
 int64 id
-string timestamp
-uint8[2147483] data
+int64 timestamp
+uint8[21474836] data

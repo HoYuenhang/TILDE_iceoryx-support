@@ -318,7 +318,7 @@ public:
 
   /// Borrow a loaned ROS message from the middleware.
   /**
-   * \sa tilde::LoanedMessage for details of the LoanedMessage class.
+   * \sa rclcpp::LoanedMessage for details of the LoanedMessage class.
    *
    * \return LoanedMessage containing memory for a ROS message of type ROSMessageType
    */
@@ -371,25 +371,18 @@ public:
   /**
    * loan messages専用のpublish関数
    */
-  void publish(rclcpp::LoanedMessage<MessageT, AllocatorT> && loaned_msg)
+  void publish(rclcpp::LoanedMessage<ROSMessageType, AllocatorT> && loaned_msg)
   {
-    if(!loaned_msg.is_valid()){
-      throw std::runtime_error("loaned message is not valid");
-    }
-    if(pub_->can_loan_messages()){
-      if (enable_){
-        // publish_infoを登録
-        auto stamp = get_timestamp(clock_->now());
-        publish_info(stamp);
-        std::cout << "(tilde::LoanedMessage) publish loan message!" << std::endl;
-        // release the ownership from the rclcpp::LoanedMessage instance
-        // and let the middleware clean up the memory.
-        pub_->publish(loaned_msg);
-      }else{
-        std::cout << "TILDE is not enabled" << std::endl;
-      }
+    if (enable_){
+      // publish_infoを登録
+      auto stamp = get_timestamp(clock_->now());
+      publish_info(stamp);
+      std::cout << "(tilde::LoanedMessage) publish loan message." << std::endl;
+      // release the ownership from the rclcpp::LoanedMessage instance
+      // and let the middleware clean up the memory.
+      pub_->publish(std::move(loaned_msg));
     }else{
-      std::cout << "loan messsage can not be used!" << std::endl;
+      std::cout << "TILDE is not enabled" << std::endl;
     }
   }
 

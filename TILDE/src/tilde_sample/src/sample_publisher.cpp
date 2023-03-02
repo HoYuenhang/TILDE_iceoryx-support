@@ -20,8 +20,6 @@
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "std_msgs/msg/string.hpp"
 
-#include "tilde_msg/msg/static_size.hpp"
-
 #include <chrono>
 #include <cstdio>
 #include <memory>
@@ -56,17 +54,13 @@ public:
     auto publish_message = [this]() -> void {
       auto time_now = this->now();
 
-      // msg_pc_ = std::make_unique<sensor_msgs::msg::PointCloud2>();
-      // msg_pc_->header.stamp = time_now;
-      // msg_pc_->header.frame_id = std::to_string(count_);
-
-      msg_pc_ = std::make_unique<tilde_msg::msg::StaticSize>();
+      msg_pc_ = std::make_unique<sensor_msgs::msg::PointCloud2>();
+      msg_pc_->header.stamp = time_now;
+      msg_pc_->header.frame_id = std::to_string(count_);
       pub_pc_->publish(std::move(msg_pc_));
 
       RCLCPP_INFO(
-        // this->get_logger(), "Publishing PointCloud2: %ld stamp: %lu", count_,
-        // time_now.nanoseconds());
-        this->get_logger(), "StaticSize test: %ld stamp: %lu", count_,
+        this->get_logger(), "Publishing PointCloud2: %ld stamp: %lu", count_,
         time_now.nanoseconds());
 
       count_++;
@@ -74,8 +68,7 @@ public:
 
     // Create a publisher with a custom Quality of Service profile.
     rclcpp::QoS qos(rclcpp::KeepLast(7));
-    // pub_pc_ = this->create_tilde_publisher<sensor_msgs::msg::PointCloud2>("topic_with_stamp", qos);
-    pub_pc_ = this->create_tilde_publisher<tilde_msg::msg::StaticSize>("topic_with_stamp", qos);
+    pub_pc_ = this->create_tilde_publisher<sensor_msgs::msg::PointCloud2>("topic_with_stamp", qos);
 
     // Use a timer to schedule periodic message publishing.
     auto dur = std::chrono::duration<int64_t, std::milli>(timer_ms);
@@ -85,10 +78,8 @@ public:
 private:
   size_t count_ = 0;
   // message with standard header
-  // std::unique_ptr<sensor_msgs::msg::PointCloud2> msg_pc_;
-  // tilde::TildePublisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_pc_;
-  std::unique_ptr<tilde_msg::msg::StaticSize> msg_pc_;
-  tilde::TildePublisher<tilde_msg::msg::StaticSize>::SharedPtr pub_pc_;
+  std::unique_ptr<sensor_msgs::msg::PointCloud2> msg_pc_;
+  tilde::TildePublisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_pc_;
 
   rclcpp::TimerBase::SharedPtr timer_;
 };

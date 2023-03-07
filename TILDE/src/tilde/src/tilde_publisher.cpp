@@ -33,7 +33,7 @@ bool InputInfo::operator==(const InputInfo & rhs) const
 
 rclcpp::Time tilde::get_timestamp(rclcpp::Time t, ...)
 {
-  std::cout << "get rclcpp::Time t" << std::endl;
+  // std::cout << "get rclcpp::Time t" << std::endl;
   return t;
 }
 
@@ -116,39 +116,6 @@ void TildePublisherBase::fill_input_info(tilde_msg::msg::MessageTrackingTag & in
         info.has_header_stamp = input_info.has_header_stamp;
         info.header_stamp = input_info.header_stamp;
         info_msg.input_infos.push_back(info);
-      }
-    }
-    explicit_input_infos_.clear();
-  }
-}
-
-// loan Message専用
-void TildePublisherBase::fill_input_info_loaned(rclcpp::LoanedMessage<tilde_msg::msg::MessageTrackingTag> & info_msg)
-{
-  info_msg.get().input_infos.clear();
-
-  if (!is_explicit_) {
-    info_msg.get().input_infos.resize(input_infos_.size());
-
-    size_t i = 0;
-    for (const auto & [topic, input_info] : input_infos_) {
-      info_msg.get().input_infos[i].topic_name = topic;
-      info_msg.get().input_infos[i].sub_time = input_info->sub_time;
-      info_msg.get().input_infos[i].sub_time_steady = input_info->sub_time_steady;
-      info_msg.get().input_infos[i].has_header_stamp = input_info->has_header_stamp;
-      info_msg.get().input_infos[i].header_stamp = input_info->header_stamp;
-      i++;
-    }
-  } else {
-    for (const auto & [topic, input_infos] : explicit_input_infos_) {
-      for (const auto & input_info : input_infos) {
-        tilde_msg::msg::SubTopicTimeInfo info;
-        info.topic_name = topic;
-        info.sub_time = input_info.sub_time;
-        info.sub_time_steady = input_info.sub_time_steady;
-        info.has_header_stamp = input_info.has_header_stamp;
-        info.header_stamp = input_info.header_stamp;
-        info_msg.get().input_infos.push_back(info);
       }
     }
     explicit_input_infos_.clear();

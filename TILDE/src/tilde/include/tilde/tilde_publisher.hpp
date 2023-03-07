@@ -369,17 +369,16 @@ public:
   }
   
   /**
-   * loan messages専用のpublish関数
+   * publish loan message
+   * \param loaned_msg loan message
    */
   void publish(rclcpp::LoanedMessage<ROSMessageType, AllocatorT> && loaned_msg)
   {
     if (enable_){
-      // publish_infoを登録
+      // register publish_info
       auto stamp = get_timestamp(clock_->now());
-      publish_info(stamp);
-      std::cout << "(tilde::LoanedMessage) publish loan message." << std::endl;
-      // release the ownership from the rclcpp::LoanedMessage instance
-      // and let the middleware clean up the memory.
+      publish_info(stamp, true);
+      // std::cout << "the publish() where defined in tilde_publish.hpp has been called." << std::endl;
       pub_->publish(std::move(loaned_msg));
     }else{
       std::cout << "TILDE is not enabled" << std::endl;
@@ -407,39 +406,39 @@ private:
   /**
    * \param has_header_stamp whether main message has header.stamp
    * \param t header stamp
+   * \param iceoryx_enable whether iceoryx is enabled
    */
-  void publish_info(const std::optional<rclcpp::Time> & t)
+  void publish_info(const std::optional<rclcpp::Time> & t, bool iceoryx_enable = false)
   {
     bool has_header_stamp = t ? true : false;
 
-      // loan messages support; if currently middleware can not loan messages, local allocator will be used.
-      auto msg = info_pub_->borrow_loaned_message();
-      msg.get().header.stamp = clock_->now();
+    auto msg = std::make_unique<tilde_msg::msg::MessageTrackingTag>();
+    msg->header.stamp = clock_->now();
+    // msg->header.frame_id  // Nothing todo
 
-      msg.get().output_info.topic_name = pub_->get_topic_name();
-      msg.get().output_info.node_fqn = node_fqn_;
-      msg.get().output_info.seq = seq_;
-      seq_++;
-      msg.get().output_info.pub_time = clock_->now();
-      msg.get().output_info.pub_time_steady = steady_clock_->now();
-      msg.get().output_info.has_header_stamp = has_header_stamp;
-      if (has_header_stamp) {
-        msg.get().output_info.header_stamp = *t;
-      }    
+    msg->output_info.topic_name = pub_->get_topic_name();
+    msg->output_info.node_fqn = node_fqn_;
+    msg->output_info.seq = seq_;
+    seq_++;
+    msg->output_info.pub_time = clock_->now();
+    msg->output_info.pub_time_steady = steady_clock_->now();
+    msg->output_info.has_header_stamp = has_header_stamp;
+    if (has_header_stamp) {
+      msg->output_info.header_stamp = *t;
+    }
 
-      fill_input_info_loaned(msg);
+    if(!iceoryx_enable) fill_input_info(*msg);
 
-      for (auto & input_info : msg.get().input_infos) {
-        auto pub_time =
-          TILDE_S_TO_NS(msg.get().output_info.pub_time.sec) + msg.get().output_info.pub_time.nanosec;
-        auto sub_time_steady =
-          TILDE_S_TO_NS(input_info.sub_time_steady.sec) + input_info.sub_time_steady.nanosec;
-        auto sub = &sub_topics_[input_info.topic_name];
-        tracepoint(TRACEPOINT_PROVIDER, tilde_publish, this, pub_time, sub, sub_time_steady);
-      }
-      
-      info_pub_->publish(std::move(msg));
-    
+    for (auto & input_info : msg->input_infos) {
+      auto pub_time =
+        TILDE_S_TO_NS(msg->output_info.pub_time.sec) + msg->output_info.pub_time.nanosec;
+      auto sub_time_steady =
+        TILDE_S_TO_NS(input_info.sub_time_steady.sec) + input_info.sub_time_steady.nanosec;
+      auto sub = &sub_topics_[input_info.topic_name];
+      tracepoint(TRACEPOINT_PROVIDER, tilde_publish, this, pub_time, sub, sub_time_steady);
+    }
+
+    info_pub_->publish(std::move(msg));
   }
 
 };

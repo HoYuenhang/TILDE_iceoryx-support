@@ -5,7 +5,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
 
-// tildeを導入
 #include "tilde/tilde_node.hpp"
 #include "tilde/tilde_publisher.hpp"
 
@@ -17,9 +16,9 @@ using namespace std::chrono_literals;
 
 class MinimalPublisher : public tilde::TildeNode {
 public:
-  MinimalPublisher() : TildeNode("minimal_publisher"), count_(0) {
+  MinimalPublisher() : TildeNode("publisher"), count_(0) {
     //auto qos = rclcpp::QoS(1).best_effort().durability_volatile().keep_last(1);
-    publisher_ = this->create_tilde_publisher<interfaces::msg::StaticSizeArray>("topic", 1);
+    publisher_ = this->create_tilde_publisher<interfaces::msg::StaticSizeArray>("iceoryx_test", 1);
     timer_ = this->create_wall_timer(3000ms, std::bind(&MinimalPublisher::timer_callback, this));
   }
 
@@ -28,7 +27,7 @@ private:
     auto message = publisher_->borrow_loaned_message();
     message.get().id = count_++;
 
-    RCLCPP_INFO(this->get_logger(), "(iceoryx_tilde)Publishing Message ID: '%ld'", message.get().id);
+    RCLCPP_INFO(this->get_logger(), "(tilde_iceoryx-support) Publishing Message ID: '%ld'", message.get().id);
 
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -38,8 +37,6 @@ private:
   }
 
   rclcpp::TimerBase::SharedPtr timer_;
-  
-  // 型をtilde::TildePublisherへ変更
   tilde::TildePublisher<interfaces::msg::StaticSizeArray>::SharedPtr publisher_;
   size_t count_;
 };

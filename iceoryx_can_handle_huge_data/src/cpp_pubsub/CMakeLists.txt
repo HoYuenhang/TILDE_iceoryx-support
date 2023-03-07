@@ -27,22 +27,13 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-add_executable(talker src/minimal_publisher.cpp)
-ament_target_dependencies(talker rclcpp interfaces tilde)
-
-add_executable(listener src/minimal_subscriber.cpp)
-ament_target_dependencies(listener rclcpp interfaces tilde)
-
-add_executable(iox_talker src/iceoryx_publisher.cpp)
-ament_target_dependencies(iox_talker rclcpp interfaces tilde)
-
 add_executable(iox_listener src/iceoryx_subscriber.cpp)
 ament_target_dependencies(iox_listener rclcpp interfaces tilde)
 
 add_executable(iox_talker_loaned src/iceoryx_publisher_loaned.cpp)
 ament_target_dependencies(iox_talker_loaned rclcpp interfaces tilde)
 
-install(TARGETS talker listener iox_talker iox_listener iox_talker_loaned
+install(TARGETS iox_listener iox_talker_loaned
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

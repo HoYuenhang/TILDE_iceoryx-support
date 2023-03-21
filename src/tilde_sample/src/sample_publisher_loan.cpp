@@ -1,4 +1,4 @@
-// Copyright 2021 Research Institute of Systems Planning, Inc.
+// Copyright 2022 Research Institute of Systems Planning, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,9 +34,8 @@ const int64_t TIMER_MS_DEFAULT = 1000;
 
 namespace tilde_sample
 {
-
 /**
- * This class sends messages without header.stamp field.
+ * This class sends loan messages without header.stamp field.
  */
 class SamplePublisherWithoutStampLoan : public tilde::TildeNode
 {
@@ -51,7 +50,6 @@ public:
     std::cout << "timer_ms: " << timer_ms << std::endl;
 
     // Create a function for when messages are to be sent.
-    setvbuf(stdout, NULL, _IONBF, BUFSIZ);
     auto publish_loan_message = [this]() -> void {
       auto time_now = this->now();
 
@@ -79,8 +77,6 @@ public:
 private:
   size_t count_ = 0;
 
-  // message without standard header, especially header.stamp
-//   std::unique_ptr<std_msgs::msg::String> msg_loan_;
   tilde::TildePublisher<tilde_msg::msg::StaticSize>::SharedPtr pub_loan_;
 
   rclcpp::TimerBase::SharedPtr timer_;
@@ -88,5 +84,4 @@ private:
 
 }  // namespace tilde_sample
 
-// RCLCPP_COMPONENTS_REGISTER_NODE(tilde_sample::SamplePublisherWithoutStampLoan)
 RCLCPP_COMPONENTS_REGISTER_NODE(tilde_sample::SamplePublisherWithoutStampLoan)

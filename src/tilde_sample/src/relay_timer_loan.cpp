@@ -1,4 +1,4 @@
-// Copyright 2021 Research Institute of Systems Planning, Inc.
+// Copyright 2022 Research Institute of Systems Planning, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,11 +32,10 @@
 using namespace std::chrono_literals;  // NOLINT
 
 const int64_t TIMER_MS_DEFAULT = 1000;
-const int64_t PROC_MS_DEFAULT = 1000;
+const int64_t PROC_MS_DEFAULT = 10;
 
 namespace tilde_sample
 {
-
 // Create a Talker class that subclasses the generic rclcpp::Node base class.
 // The main function below will instantiate the class as a ROS node.
 class RelayTimerLoan : public tilde::TildeNode
@@ -58,7 +57,7 @@ public:
     rclcpp::QoS qos(rclcpp::KeepLast(7));
 
     sub_loan_ = this->create_tilde_subscription<tilde_msg::msg::StaticSize>(
-      "topic_without_stamp_loan", qos, [this](tilde_msg::msg::StaticSize::UniquePtr msg) -> void {
+      "topic_without_stamp_loan", qos, [this](tilde_msg::msg::StaticSize::SharedPtr msg) -> void {
         struct timeval tv;
         gettimeofday(&tv, NULL);
         auto now = tv.tv_sec * 1000 * 1000 + tv.tv_usec;
@@ -72,18 +71,16 @@ public:
         oFile << msg->id << "," << latency << std::endl;
         oFile.close();
         
-        this->msg_loan_ = std::move(msg);
+        msg_loan_ = msg;
       });
 
     // Create a function for when messages are to be sent.
-    // setvbuf(stdout, NULL, _IONBF, BUFSIZ);
     auto proc_dur = std::chrono::duration<int64_t, std::milli>(proc_ms);
     auto timer_callback = [this, proc_dur, update_stamp]() -> void {
       std::this_thread::sleep_for(proc_dur);
 
-      if (this->msg_loan_) {
-        pub_->publish(std::move(this->msg_loan_));
-        msg_loan_.reset(nullptr);
+      if (msg_loan_) {
+        pub_->publish(*msg_loan_);
       }
     };
 
@@ -95,7 +92,7 @@ public:
   }
 
 private:
-  std::unique_ptr<tilde_msg::msg::StaticSize> msg_loan_;
+  std::shared_ptr<tilde_msg::msg::StaticSize> msg_loan_;
   rclcpp::Subscription<tilde_msg::msg::StaticSize>::SharedPtr sub_loan_;
   tilde::TildePublisher<tilde_msg::msg::StaticSize>::SharedPtr pub_;
 

@@ -2,6 +2,8 @@
 
 [README(ja)](./doc/README.md)
 
+The iceoryx-support demo is in `src/tilde_sample/src/..._loan.cpp`
+
 ## Contents
 
 | src/         | about                                                |
